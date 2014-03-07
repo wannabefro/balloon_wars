@@ -57,6 +57,21 @@ function gameOver(game){
   finalScore = score;
   game.faizaan = {};
   playing = false;
+  addToLocalStorage();
+}
+
+function addToLocalStorage(){
+  name = prompt('Enter your name');
+  if(name){
+    var data = {name: name, score: finalScore};
+    if (localStorage.scores){
+      previousScores = JSON.parse(localStorage.scores);
+      previousScores.push(data);
+      localStorage.scores = JSON.stringify(previousScores);
+    } else {
+      localStorage.scores = JSON.stringify([data]);
+    }
+  }
 }
 
 function tick(game) {
@@ -189,6 +204,9 @@ function draw(game) {
   } else {
     drawTextCentered(ctx, finalScore, 48, 48, 24, 'monospace');
   }
+  if(game.highscore){
+    drawTextCentered(ctx, 'High Score: ' + game.highscore, width - 120, 48, 24, 'monospace');
+  }
 }
 
 function didHitCircle(game, circle, rect){
@@ -219,7 +237,7 @@ function didHit(game, block, faizaan){
 function makeBlocks(amount){
   var blocks = [];
   for(var i=0; i < amount; i++){
-    blocks.push({x: Math.floor(Math.random() * width) + 150, y: Math.floor(Math.random() * height), w: 10 + Math.floor(Math.random() * 50), h: 10 + Math.floor(Math.random() * 50), color: getRandomColor()})
+    blocks.push({x: Math.floor(Math.random() * width) + 150, y: Math.floor(Math.random() * (height - 100)) + 50, w: 10 + Math.floor(Math.random() * 50), h: 10 + Math.floor(Math.random() * 50), color: getRandomColor()})
   }
   return blocks;
 }
@@ -227,7 +245,7 @@ function makeBlocks(amount){
 function makeCircles(amount){
   var circles = [];
   for(var i=0; i < amount; i++){
-    circles.push({radius: 10, x: Math.floor(Math.random() * width) + 150, y: Math.floor(Math.random() * height), color: getRandomColor()});
+    circles.push({radius: 10, x: Math.floor(Math.random() * width) + 150, y: Math.floor(Math.random() * (height - 100)) + 50, color: getRandomColor()});
   }
   return circles;
 }
@@ -260,6 +278,14 @@ function run() {
     movingBlocks: makeBlocks(movingBlocksCount),
     food: makeCircles(foodCount)
   };
+
+  if(localStorage.scores){
+    scores = JSON.parse(localStorage.scores);
+    sortedScores = scores.sort(function(a,b){
+      return b.score - a.score;
+    });
+    if(sortedScores[0].score != undefined) game.highscore = sortedScores[0].score;
+  }
 
   window.onkeydown = function(event) {
     keyDown(game, event);
