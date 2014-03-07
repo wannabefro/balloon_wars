@@ -24,8 +24,8 @@ function keyDown(game, event) {
 
   switch (event.keyCode) {
     case SPACE_KEY: jump(game); break;
-    case LEFT_KEY: startAcceleratingLeft(game); break;
-    case RIGHT_KEY: startAcceleratingRight(game); break;
+    case LEFT_KEY: toggleAcceleration(game.faizaan, 'left', true); break;
+    case RIGHT_KEY: toggleAcceleration(game.faizaan, 'right', true); break;
     default: handled = false; break;
   }
 
@@ -38,8 +38,8 @@ function keyUp(game, event) {
   var handled = true;
 
   switch (event.keyCode) {
-    case LEFT_KEY: stopAcceleratingLeft(game); break;
-    case RIGHT_KEY: stopAcceleratingRight(game); break;
+    case LEFT_KEY: toggleAcceleration(game.faizaan, 'left', false); break;
+    case RIGHT_KEY: toggleAcceleration(game.faizaan, 'right', false); break;
     default: handled = false; break;
   }
 
@@ -52,20 +52,12 @@ function jump(game){
   game.faizaan.yVel = -JUMP_SPEED;
 }
 
-function startAcceleratingLeft(game) {
-  game.faizaan.accelLeft = true;
-}
-
-function startAcceleratingRight(game) {
-  game.faizaan.accelRight = true;
-}
-
-function stopAcceleratingLeft(game){
-  game.faizaan.accelLeft = false;
-}
-
-function stopAcceleratingRight(game) {
-  game.faizaan.accelRight = false;
+function toggleAcceleration(wizard, direction, isEnabled) {
+  switch (direction) {
+  case 'left': wizard.accelLeft = isEnabled; break;
+  case 'right': wizard.accelRight = isEnabled; break;
+  default: break;
+  }
 }
 
 function gameOver(game){
