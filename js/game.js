@@ -16,17 +16,6 @@ ctx.canvas.width = width;
 var GRAVITY = 0.5;
 var ACCELERATION = 1.0;
 
-function drawRect(context, x, y, w, h, color) {
-  context.strokeStyle = color;
-  context.fillStyle = color;
-
-  context.fillRect(x, y, w, h);
-}
-
-function clearScreen(context) {
-  context.clearRect(0, 0, width, height);
-}
-
 function keyDown(game, event) {
   var handled = true;
 
@@ -159,46 +148,6 @@ function tick(game) {
     }
   }
 }
-function drawTextCentered(context, text, x, y, fontHeight, fontName) {
-  context.font = fontHeight + 'px ' + fontName;
-  var textWidth = context.measureText(text).width;
-
-  var actualX = x - (textWidth / 2);
-  var actualY = y - (fontHeight / 2);
-
-  context.fillText(text, actualX, actualY);
-}
-
-function drawCircle(context, x, y, radius, color){
-  context.beginPath();
-  context.arc(x, y, radius, 0, 2 * Math.PI, false);
-  context.fillStyle = color;
-  context.fill();
-  context.lineWidth = 1;
-  context.strokeStyle = '#003300';
-  context.stroke();
-}
-
-function drawSmileyFace(ctx, x, y, radius, color){
-  ctx.beginPath();
-  ctx.arc(x,y,50,0,Math.PI*2,true); // Outer circle
-  ctx.moveTo(110,75);
-  ctx.arc(75,75,35,0,Math.PI,false);   // Mouth (clockwise)
-  ctx.moveTo(65,65);
-  ctx.arc(60,65,5,0,Math.PI*2,true);  // Left eye
-  ctx.moveTo(95,65);
-  ctx.arc(90,65,5,0,Math.PI*2,true);  // Right eye
-  ctx.stroke();
-}
-
-function getRandomColor() {
-  var letters = '0123456789ABCDEF'.split('');
-  var color = '#';
-  for (var i = 0; i < 6; i++ ) {
-    color += letters[Math.round(Math.random() * 15)];
-  }
-  return color;
-}
 
 function draw(game) {
   clearScreen(ctx);
@@ -225,7 +174,7 @@ function draw(game) {
   for(var i = 0; i < game.food.length; i++){
     circle = game.food[i];
     drawCircle(ctx, circle.x, circle.y, circle.radius, circle.color);
-    if (didHitCircle(game, circle, wiz)){
+    if (didHitCircle(circle, wiz)){
       console.log('score');
       game.food.splice(i, 1);
       score += 1000;
@@ -239,20 +188,6 @@ function draw(game) {
   }
 }
 
-function didHitCircle(game, circle, rect){
-  var distX = Math.abs(circle.x - rect.x-rect.w/2);
-  var distY = Math.abs(circle.y - rect.y-rect.h/2);
-
-  if (distX > (rect.w/2 + circle.radius)) { return false; }
-  if (distY > (rect.h/2 + circle.radius)) { return false; }
-
-  if (distX <= (rect.w/2)) { return true; }
-  if (distY <= (rect.h/2)) { return true; }
-
-  var dx=distX-rect.w/2;
-  var dy=distY-rect.h/2;
-  return (dx*dx+dy*dy<=(circle.radius*circle.radius));
-}
 
 function didHit(game, block, faizaan){
     if((faizaan.x + faizaan.w >= block.x  && faizaan.x < block.x + block.w) && (faizaan.y + faizaan.h >= block.y && faizaan.y < block.y + block.h)){
@@ -262,7 +197,6 @@ function didHit(game, block, faizaan){
       return false;
   }
 }
-
 
 function makeBlocks(amount){
   var blocks = [];
