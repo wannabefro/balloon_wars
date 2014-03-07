@@ -1,7 +1,17 @@
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
-var WIDTH = window.innerWidth;
-var HEIGHT = window.innerHeight;
+if(screen.availWidth >= window.innerWidth && window.innerWidth >= screen.availWidth - 100){
+  var WIDTH = screen.width;
+} else {
+  var WIDTH = window.innerWidth;
+}
+
+if(screen.availHeight >= window.innerHeight && window.innerHeight >= screen.availHeight - 100){
+  var HEIGHT = screen.height;
+} else {
+  var HEIGHT = window.innerHeight;
+}
+var HEIGHT = screen.height;
 
 var blockCount = 10;
 var movingBlocksCount = 2;
@@ -15,7 +25,7 @@ ctx.canvas.height = HEIGHT;
 ctx.canvas.width = WIDTH;
 
 var GRAVITY = 0.5;
-var ACCELERATION = 0.8;
+var ACCELERATION = 0.2;
 var MAX_SPEED = 15.0;
 var JUMP_SPEED = 10.0;
 
@@ -83,7 +93,7 @@ function addToLocalStorage(){
 
 function tick(game) {
   if (playing) {
-    score += game.faizaan.xVel;
+    score += Math.floor(game.faizaan.xVel);
 
     game.faizaan.yVel += GRAVITY;
     if (game.faizaan.yVel > MAX_SPEED) {
@@ -93,7 +103,7 @@ function tick(game) {
     game.faizaan.y += game.faizaan.yVel;
 
     var xAccel = 0;
-    if (game.faizaan.accelLeft) { xAccel -= ACCELERATION; }
+    if (game.faizaan.accelLeft) { xAccel -= ACCELERATION / 1.5; }
     if (game.faizaan.accelRight) { xAccel += ACCELERATION; }
 
     game.faizaan.xVel += xAccel;
@@ -103,6 +113,10 @@ function tick(game) {
 
     if (game.faizaan.xVel <= -MAX_SPEED) {
       game.faizaan.xVel = -MAX_SPEED;
+    }
+
+    if (game.faizaan.xVel < 0.1) {
+      game.faizaan.xVel = 0.1;
     }
 
 
@@ -197,7 +211,7 @@ function draw(game) {
     drawTextCentered(ctx, finalScore, 48, 48, 24, 'monospace');
   }
   if(game.highscore){
-    drawTextCentered(ctx, 'High Score: ' + game.highscore, width - 150, 48, 24, 'monospace');
+    drawTextCentered(ctx, 'High Score: ' + game.highscore, WIDTH - 150, 48, 24, 'monospace');
   }
 }
 
@@ -214,7 +228,7 @@ function didHit(game, block, faizaan){
 function makeBlocks(amount){
   var blocks = [];
   for(var i=0; i < amount; i++){
-    blocks.push({x: Math.floor(Math.random() * WIDTH) + 150, y: Math.floor(Math.random() * (HEIGHT - 100)) + 50, w: 10 + Math.floor(Math.random() * 50), h: 10 + Math.floor(Math.random() * 50), color: getRandomColor()})
+    blocks.push({x: Math.floor(Math.random() * WIDTH) + 150, y: Math.floor(Math.random() * (HEIGHT - 100)) + 50, w: (WIDTH / 50) + Math.floor(Math.random() * 50), h: (HEIGHT / 50) + Math.floor(Math.random() * 50), color: getRandomColor()})
   }
   return blocks;
 }
@@ -222,7 +236,7 @@ function makeBlocks(amount){
 function makeCircles(amount){
   var circles = [];
   for(var i=0; i < amount; i++){
-    circles.push({radius: 10, x: Math.floor(Math.random() * WIDTH) + 150, y: Math.floor(Math.random() * (HEIGHT - 100)) + 50, color: getRandomColor()});
+    circles.push({radius: (WIDTH / 100), x: Math.floor(Math.random() * WIDTH) + 150, y: Math.floor(Math.random() * (HEIGHT - 100)) + 50, color: getRandomColor()});
   }
   return circles;
 }
@@ -283,9 +297,18 @@ function run() {
     keyUp(game, event);
   };
 
+  // window.onclick = function(event) {
+  //   event.preventDefault;
+  //   if(playing){
+  //     jump(game);
+  //   } else {
+  //     playing = true;
+  //   }
+  // }
+
   var gameLoop = window.requestNextAnimationFrame(function(time) {
     loop(game, time);
   });
 }
-
 run();
+
