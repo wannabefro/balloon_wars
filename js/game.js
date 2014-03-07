@@ -1,7 +1,8 @@
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
-var width = window.innerWidth;
-var height = window.innerHeight;
+var WIDTH = window.innerWidth;
+var HEIGHT = window.innerHeight;
+
 var blockCount = 10;
 var movingBlocksCount = 2;
 var score = 0;
@@ -10,8 +11,8 @@ var level = 1;
 var playing = true;
 var gameloop;
 var finalScore;
-ctx.canvas.height = height;
-ctx.canvas.width = width;
+ctx.canvas.height = HEIGHT;
+ctx.canvas.width = WIDTH;
 
 var GRAVITY = 0.5;
 var ACCELERATION = 0.8;
@@ -122,7 +123,7 @@ function tick(game) {
       block = game.movingBlocks[i];
       if(block.y < 20){
         block.movement = 'positive';
-      } else if (block.y > height - 40){
+      } else if (block.y > HEIGHT - 40){
         block.movement = 'negative';
       }
       if(block.movement == 'positive'){
@@ -132,7 +133,7 @@ function tick(game) {
       }
     }
 
-    if (game.faizaan.y > height + 1){
+    if (game.faizaan.y > HEIGHT + 1){
       if(level == 1){
         gameOver(game);
       } else {
@@ -145,7 +146,7 @@ function tick(game) {
       }
     }
     if (game.faizaan.y <  20){
-      game.faizaan.y = height;
+      game.faizaan.y = HEIGHT;
       level++;
       game.blocks = makeBlocks(blockCount);
       game.movingBlocks = makeBlocks(movingBlocksCount);
@@ -153,7 +154,7 @@ function tick(game) {
       game.movingBlocks = makeBlocks(movingBlocksCount);
       animateBlocks(game);
     }
-    if (game.faizaan.x >  width - 20){
+    if (game.faizaan.x >  WIDTH - 20){
       game.faizaan.x = 20;
       blockCount += 5;
       movingBlocksCount += 1;
@@ -163,7 +164,7 @@ function tick(game) {
       animateBlocks(game);
     }
     if (game.faizaan.x <  20){
-      game.faizaan.x = width;
+      game.faizaan.x = WIDTH;
     }
   }
 }
@@ -203,7 +204,7 @@ function draw(game) {
     drawTextCentered(ctx, finalScore, 48, 48, 24, 'monospace');
   }
   if(game.highscore){
-    drawTextCentered(ctx, 'High Score: ' + game.highscore, width - 120, 48, 24, 'monospace');
+    drawTextCentered(ctx, 'High Score: ' + game.highscore, WIDTH - 120, 48, 24, 'monospace');
   }
 }
 
@@ -220,7 +221,7 @@ function didHit(game, block, faizaan){
 function makeBlocks(amount){
   var blocks = [];
   for(var i=0; i < amount; i++){
-    blocks.push({x: Math.floor(Math.random() * width) + 150, y: Math.floor(Math.random() * (height - 100)) + 50, w: 10 + Math.floor(Math.random() * 50), h: 10 + Math.floor(Math.random() * 50), color: getRandomColor()})
+    blocks.push({x: Math.floor(Math.random() * WIDTH) + 150, y: Math.floor(Math.random() * (HEIGHT - 100)) + 50, w: 10 + Math.floor(Math.random() * 50), h: 10 + Math.floor(Math.random() * 50), color: getRandomColor()})
   }
   return blocks;
 }
@@ -228,7 +229,7 @@ function makeBlocks(amount){
 function makeCircles(amount){
   var circles = [];
   for(var i=0; i < amount; i++){
-    circles.push({radius: 10, x: Math.floor(Math.random() * width) + 150, y: Math.floor(Math.random() * (height - 100)) + 50, color: getRandomColor()});
+    circles.push({radius: 10, x: Math.floor(Math.random() * WIDTH) + 150, y: Math.floor(Math.random() * (HEIGHT - 100)) + 50, color: getRandomColor()});
   }
   return circles;
 }
@@ -258,7 +259,7 @@ function run() {
   var game = {
     faizaan: {
       x: 20,
-      y: height / 2,
+      y: HEIGHT / 2,
       w: 20,
       h: 30,
       xVel: 0,
