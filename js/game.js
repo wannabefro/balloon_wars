@@ -14,6 +14,7 @@ ctx.canvas.height = height;
 ctx.canvas.width = width;
 
 var GRAVITY = 0.5;
+var ACCELERATION = 1.0;
 
 function drawRect(context, x, y, w, h, color) {
   context.strokeStyle = color;
@@ -31,8 +32,22 @@ function keyDown(game, event) {
 
   switch (event.keyCode) {
     case SPACE_KEY: movefaizaanUp(game); break;
-    case LEFT_KEY: movefaizaanLeft(game); break;
-    case RIGHT_KEY: movefaizaanRight(game); break;
+    case LEFT_KEY: startAcceleratingLeft(game); break;
+    case RIGHT_KEY: startAcceleratingRight(game); break;
+    default: handled = false; break;
+  }
+
+  if (handled) {
+    event.preventDefault();
+  }
+}
+
+function keyUp(game, event) {
+  var handled = true;
+
+  switch (event.keyCode) {
+    case LEFT_KEY: stopAcceleratingLeft(game); break;
+    case RIGHT_KEY: stopAcceleratingRight(game); break;
     default: handled = false; break;
   }
 
@@ -44,13 +59,21 @@ function keyDown(game, event) {
 function movefaizaanUp(game){
   game.faizaan.yVel = -10;
 }
-function movefaizaanLeft(game){
-  if(game.faizaan.xVel > 1){
-    game.faizaan.xVel -= 1;
-  }
+
+function startAcceleratingLeft(game) {
+  game.faizaan.accelLeft = true;
 }
-function movefaizaanRight(game){
-  game.faizaan.xVel += 1;
+
+function startAcceleratingRight(game) {
+  game.faizaan.accelRight = true;
+}
+
+function stopAcceleratingLeft(game){
+  game.faizaan.accelLeft = false;
+}
+
+function stopAcceleratingRight(game) {
+  game.faizaan.accelRight = false;
 }
 
 function gameOver(game){
@@ -75,11 +98,18 @@ function addToLocalStorage(){
 }
 
 function tick(game) {
-  if(playing){
+  if (playing) {
     score += game.faizaan.xVel;
     game.faizaan.y += game.faizaan.yVel;
     game.faizaan.yVel += GRAVITY;
+
+    var xAccel = 0;
+    if (game.faizaan.accelLeft) { xAccel -= ACCELERATION; }
+    if (game.faizaan.accelRight) { xAccel += ACCELERATION; }
+
+    game.faizaan.xVel += xAccel;
     game.faizaan.x += game.faizaan.xVel;
+
     for(var i = 0; i < game.movingBlocks.length; i++){
       block = game.movingBlocks[i];
       if(block.y < 20){
@@ -216,7 +246,7 @@ function didHitCircle(game, circle, rect){
   if (distX > (rect.w/2 + circle.radius)) { return false; }
   if (distY > (rect.h/2 + circle.radius)) { return false; }
 
-  if (distX <= (rect.w/2)) { return true; } 
+  if (distX <= (rect.w/2)) { return true; }
   if (distY <= (rect.h/2)) { return true; }
 
   var dx=distX-rect.w/2;
@@ -273,7 +303,18 @@ function animateBlocks(game){
 
 function run() {
   var game = {
-    faizaan: { x: 20, y: height / 2, w: 20, h: 30, yVel: 1, xVel: 1, color: getRandomColor()},
+    faizaan: {
+      x: 20,
+      y: height / 2,
+      w: 20,
+      h: 30,
+      xVel: 0,
+      yVel: 0,
+      accelLeft: false,
+      accelRight: false,
+      color: getRandomColor()
+    },
+
     blocks: makeBlocks(blockCount),
     movingBlocks: makeBlocks(movingBlocksCount),
     food: makeCircles(foodCount)
@@ -291,10 +332,13 @@ function run() {
     keyDown(game, event);
   };
 
+  window.onkeyup = function(event) {
+    keyUp(game, event);
+  };
+
   var gameLoop = window.requestAnimationFrame(function(time) {
     loop(game, time);
   });
 }
 
 run();
-
