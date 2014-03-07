@@ -17,12 +17,13 @@ ctx.canvas.width = WIDTH;
 var GRAVITY = 0.5;
 var ACCELERATION = 0.8;
 var MAX_SPEED = 15.0;
+var JUMP_SPEED = 10.0;
 
 function keyDown(game, event) {
   var handled = true;
 
   switch (event.keyCode) {
-    case SPACE_KEY: movefaizaanUp(game); break;
+    case SPACE_KEY: jump(game); break;
     case LEFT_KEY: startAcceleratingLeft(game); break;
     case RIGHT_KEY: startAcceleratingRight(game); break;
     default: handled = false; break;
@@ -47,8 +48,8 @@ function keyUp(game, event) {
   }
 }
 
-function movefaizaanUp(game){
-  game.faizaan.yVel = -10;
+function jump(game){
+  game.faizaan.yVel = -JUMP_SPEED;
 }
 
 function startAcceleratingLeft(game) {
