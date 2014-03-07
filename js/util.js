@@ -6,7 +6,7 @@ function drawRect(context, x, y, w, h, color) {
 }
 
 function clearScreen(context) {
-  context.clearRect(0, 0, width, height);
+  context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 }
 
 function drawTextCentered(context, text, x, y, fontHeight, fontName) {
