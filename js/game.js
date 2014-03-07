@@ -14,7 +14,8 @@ ctx.canvas.height = height;
 ctx.canvas.width = width;
 
 var GRAVITY = 0.5;
-var ACCELERATION = 1.0;
+var ACCELERATION = 0.8;
+var MAX_SPEED = 15.0;
 
 function keyDown(game, event) {
   var handled = true;
@@ -89,15 +90,33 @@ function addToLocalStorage(){
 function tick(game) {
   if (playing) {
     score += game.faizaan.xVel;
-    game.faizaan.y += game.faizaan.yVel;
+
     game.faizaan.yVel += GRAVITY;
+    if (game.faizaan.yVel > MAX_SPEED) {
+      game.faizaan.yVel = MAX_SPEED;
+    }
+
+    game.faizaan.y += game.faizaan.yVel;
 
     var xAccel = 0;
     if (game.faizaan.accelLeft) { xAccel -= ACCELERATION; }
     if (game.faizaan.accelRight) { xAccel += ACCELERATION; }
 
     game.faizaan.xVel += xAccel;
+    if (game.faizaan.xVel > MAX_SPEED) {
+      game.faizaan.xVel = MAX_SPEED;
+    }
+
+    if (game.faizaan.xVel <= -MAX_SPEED) {
+      game.faizaan.xVel = -MAX_SPEED;
+    }
+
+
+
     game.faizaan.x += game.faizaan.xVel;
+
+    var xVel = game.faizaan.xVel;
+    game.faizaan.xVel = Math.min(xVel + xAccel, xVel);
 
     for(var i = 0; i < game.movingBlocks.length; i++){
       block = game.movingBlocks[i];
