@@ -218,7 +218,7 @@ function loop(game, time) {
   tick(game);
   draw(game);
 
-  window.requestAnimationFrame(function(time) {
+  window.requestNextAnimationFrame(function(time) {
     loop(game, time);
   });
 }
@@ -270,7 +270,7 @@ function run() {
     keyUp(game, event);
   };
 
-  var gameLoop = window.requestAnimationFrame(function(time) {
+  var gameLoop = window.requestNextAnimationFrame(function(time) {
     loop(game, time);
   });
 }
