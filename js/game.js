@@ -235,7 +235,7 @@ function draw(game) {
     drawTextCentered(ctx, finalScore, 48, 48, 24, 'monospace');
   }
   if(game.highscore){
-    drawTextCentered(ctx, 'High Score: ' + game.highscore, width - 120, 48, 24, 'monospace');
+    drawTextCentered(ctx, 'High Score: ' + game.highscore, width - 150, 48, 24, 'monospace');
   }
 }
 
