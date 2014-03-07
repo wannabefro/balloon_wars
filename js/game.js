@@ -3,8 +3,10 @@ var ctx = canvas.getContext('2d');
 var width = window.innerWidth;
 var height = window.innerHeight;
 var blockCount = 10;
+var movingBlocksCount = 2;
 var score = 0;
 var gameLoop;
+var level = 1;
 ctx.canvas.height = height;
 ctx.canvas.width = width;
 
@@ -62,17 +64,48 @@ function tick(game) {
   game.faizaan.y += game.faizaan.yVel;
   game.faizaan.yVel += GRAVITY;
   game.faizaan.x += game.faizaan.xVel;
+  for(var i = 0; i < game.movingBlocks.length; i++){
+    block = game.movingBlocks[i];
+    if(block.y < 20){
+      block.movement = 'positive';
+    } else if (block.y > height - 40){
+      block.movement = 'negative';
+    }
+    if(block.movement == 'positive'){
+      block.y++;
+    } else {
+      block.y--;
+    }
+  }
   
-  if (game.faizaan.y > height - 20){
-    gameOver(game);
+  if (game.faizaan.y > height + 1){
+    if(level == 1){
+      gameOver(game);
+    } else {
+      level--;
+      game.blocks = makeBlocks(blockCount);
+      game.faizaan.y = 20;
+      game.blocks = makeBlocks(blockCount);
+      game.movingBlocks = makeBlocks(movingBlocksCount);
+      animateBlocks(game);
+    }
   }
   if (game.faizaan.y <  20){
     game.faizaan.y = height;
+    level++;
+    game.blocks = makeBlocks(blockCount);
+    game.movingBlocks = makeBlocks(movingBlocksCount);
+    game.blocks = makeBlocks(blockCount);
+    game.movingBlocks = makeBlocks(movingBlocksCount);
+    animateBlocks(game);
   }
   if (game.faizaan.x >  width - 20){
     game.faizaan.x = 20;
     blockCount += 5;
-    game.blocks = makeBlocks();
+    movingBlocksCount += 1;
+    game.blocks = makeBlocks(blockCount);
+    game.movingBlocks = makeBlocks(movingBlocksCount);
+    animateBlocks(game);
   }
   if (game.faizaan.x <  20){
     game.faizaan.x = width;
@@ -100,23 +133,25 @@ function draw(game) {
   clearScreen(ctx);
   drawTextCentered(ctx, score, 48, 48, 24, 'monospace');
   var wiz = game.faizaan;
-  // var winner = game.winningBlock;
   for(var i = 0; i < game.blocks.length; i++){
     block = game.blocks[i];
     drawRect(ctx, block.x, block.y, block.w, block.h, block.color);
   }
   drawRect(ctx, wiz.x, wiz.y, wiz.w, wiz.h, wiz.color);
-  // drawRect(ctx, winner.x, winner.y, winner.w, winner.h, winner.color);
   for(var i = 0; i < game.blocks.length; i++){
     if (didHit(game, game.blocks[i], wiz)){
       game.faizaan = {};
       console.log('you lost');
     }
   }
-  // if (didHit(game, winner, wiz)){
-  //   game.faizaan = {};
-  //   console.log('you won');
-  // }
+  for(var i = 0; i < game.movingBlocks.length; i++){
+    block = game.movingBlocks[i];
+    drawRect(ctx, block.x, block.y, block.w, block.h, block.color);
+    if (didHit(game, game.movingBlocks[i], wiz)){
+      game.faizaan = {};
+      console.log('you lost');
+    }
+  }
 }
 
 function didHit(game, block, faizaan){
@@ -129,9 +164,9 @@ function didHit(game, block, faizaan){
 }
 
 
-function makeBlocks(){
+function makeBlocks(amount){
   var blocks = [];
-  for(var i=1; i < blockCount; i++){
+  for(var i=0; i < amount; i++){
     blocks.push({x: Math.floor(Math.random() * width) + 150, y: Math.floor(Math.random() * height), w: 10 + Math.floor(Math.random() * 50), h: 10 + Math.floor(Math.random() * 50), color: getRandomColor()})
   }
   return blocks;
@@ -146,11 +181,23 @@ function loop(game, time) {
   });
 }
 
+function animateBlocks(game){
+  for(var i = 0; i < game.movingBlocks.length; i++){
+    number = Math.floor(Math.random() * 2);
+    block = game.movingBlocks[i];
+    if(number == 1){
+      block.movement = 'positive';
+    } else {
+      block.movement = 'negative';
+    }
+  }
+}
+
 function run() {
   var game = {
     faizaan: { x: 20, y: height / 2, w: 20, h: 30, yVel: 1, xVel: 0, color: getRandomColor()},
-    blocks: makeBlocks()
-    // winningBlock: { x: Math.floor(Math.random() * width), y: Math.floor(Math.random() * height), w: 20, h: 20, color: 'red'}
+    blocks: makeBlocks(blockCount),
+    movingBlocks: makeBlocks(movingBlocksCount)
   };
 
   window.onkeydown = function(event) {
