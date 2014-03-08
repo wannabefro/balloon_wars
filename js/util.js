@@ -25,7 +25,7 @@ function drawCircle(context, x, y, radius, color){
   context.fillStyle = color;
   context.fill();
   context.lineWidth = 1;
-  context.strokeStyle = '#003300';
+  context.strokeStyle = color;
   context.stroke();
 }
 
@@ -74,11 +74,6 @@ function didHitCircle(circle, rect){
   return (dx*dx+dy*dy<=(circle.radius*circle.radius));
 }
 
-function didHit(game, block, faizaan){
-    if((faizaan.x + faizaan.w >= block.x  && faizaan.x < block.x + block.w) && (faizaan.y + faizaan.h >= block.y && faizaan.y < block.y + block.h)){
-      gameOver(game);
-      return true;
-    } else {
-      return false;
-  }
+function didHitSquare(square1, square2){
+  return ((square1.x + square1.w >= square2.x  && square1.x < square2.x + square2.w) && (square1.y + square1.h >= square2.y && square1.y < square2.y + square2.h))
 }

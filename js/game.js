@@ -31,7 +31,7 @@ ctx.canvas.height = HEIGHT;
 ctx.canvas.width = WIDTH;
 
 var GRAVITY = 0.5;
-var ACCELERATION = 0.2;
+var ACCELERATION = 0.1;
 var MAX_SPEED = 15.0;
 var JUMP_SPEED = 10.0;
 
@@ -40,8 +40,8 @@ function keyDown(game, event) {
 
   switch (event.keyCode) {
     case SPACE_KEY: jump(game); break;
-    case LEFT_KEY: toggleAcceleration(game.faizaan, 'left', true); break;
-    case RIGHT_KEY: toggleAcceleration(game.faizaan, 'right', true); break;
+    // case LEFT_KEY: toggleAcceleration(game.faizaan, 'left', true); break;
+    // case RIGHT_KEY: toggleAcceleration(game.faizaan, 'right', true); break;
     default: handled = false; break;
   }
 
@@ -54,8 +54,8 @@ function keyUp(game, event) {
   var handled = true;
 
   switch (event.keyCode) {
-    case LEFT_KEY: toggleAcceleration(game.faizaan, 'left', false); break;
-    case RIGHT_KEY: toggleAcceleration(game.faizaan, 'right', false); break;
+    // case LEFT_KEY: toggleAcceleration(game.faizaan, 'left', false); break;
+    // case RIGHT_KEY: toggleAcceleration(game.faizaan, 'right', false); break;
     default: handled = false; break;
   }
 
@@ -161,15 +161,14 @@ function tick(game) {
 
 function levelUp(game){
   game.faizaan.x = 20;
+  game.faizaan.xVel++;
   blockCount += 2;
   level++;
   blockSpeed++;
   movingBlocksCount += 1;
-  game.faizaan.h += 5;
-  game.faizaan.w += 5;
   game.blocks = makeBlocks(blockCount);
   game.movingBlocks = makeBlocks(movingBlocksCount);
-  game.food = makeCircles(foodCount);
+  game.food = makeCircles(foodCount, game.blocks);
   animateBlocks(game);
 }
 
@@ -183,24 +182,21 @@ function draw(game) {
   for(var i = 0; i < game.blocks.length; i++){
     block = game.blocks[i];
     drawRect(ctx, block.x, block.y, block.w, block.h, block.color);
-    if (didHit(game, game.blocks[i], wiz)){
-      game.faizaan = {};
-      console.log('you lost');
+    if (didHitSquare(game.blocks[i], wiz)){
+      gameOver(game);
     }
   }
   for(var i = 0; i < game.movingBlocks.length; i++){
     block = game.movingBlocks[i];
     drawRect(ctx, block.x, block.y, block.w, block.h, block.color);
-    if (didHit(game, game.movingBlocks[i], wiz)){
-      game.faizaan = {};
-      console.log('you lost');
+    if (didHitSquare(game.movingBlocks[i], wiz)){
+      gameOver(game);
     }
   }
   for(var i = 0; i < game.food.length; i++){
     circle = game.food[i];
     drawCircle(ctx, circle.x, circle.y, circle.radius, circle.color);
     if (didHitCircle(circle, wiz)){
-      console.log('score');
       game.food.splice(i, 1);
       score += 1000;
     }
@@ -214,17 +210,38 @@ function draw(game) {
 }
 
 function makeBlocks(amount){
-  var blocks = [];
+  blocks = [];
   for(var i=0; i < amount; i++){
-    blocks.push({speed: Math.random() * blockSpeed, x: Math.floor(Math.random() * WIDTH) + 150, y: Math.floor(Math.random() * (HEIGHT - 100)) + 50, w: (WIDTH / 50) + Math.floor(Math.random() * 50), h: (HEIGHT / 50) + Math.floor(Math.random() * 50), color: getRandomColor()})
+    function makeBlock(){
+      block = {speed: Math.random() * blockSpeed, x: Math.floor(Math.random() * WIDTH) + 150, y: Math.floor(Math.random() * (HEIGHT - 100)) + 50, w: (WIDTH / 50) + Math.floor(Math.random() * 50), h: (HEIGHT / 50) + Math.floor(Math.random() * 50), color: getRandomColor()};
+      if (i > 0){
+        for(var j = 0; j < blocks.length; j++){
+          if (didHitSquare(block, blocks[j])){
+            makeBlock();
+          }
+        }
+      }
+      return block;
+    }
+    block = makeBlock();
+    blocks.push(block);
   }
   return blocks;
 }
 
-function makeCircles(amount){
+function makeCircles(amount, blocks){
   var circles = [];
   for(var i=0; i < amount; i++){
-    circles.push({radius: (WIDTH / 100), x: Math.floor(Math.random() * WIDTH) + 150, y: Math.floor(Math.random() * (HEIGHT - 100)) + 50, color: getRandomColor()});
+    function makeCircle(){
+      circle = {radius: (WIDTH / 100), x: Math.floor(Math.random() * WIDTH) + 150, y: Math.floor(Math.random() * (HEIGHT - 100)) + 50, color: getRandomColor()};
+      for(var j = 0; j < blocks.length; j++){
+        if (didHitCircle(circle, blocks[j])){
+          makeCircle();
+        }
+      }
+      return circle;
+    }
+    circles.push(makeCircle());
   }
   return circles;
 }
@@ -257,7 +274,7 @@ function run() {
       y: HEIGHT / 2,
       w: FAIZAAN_WIDTH,
       h: FAIZAAN_HEIGHT,
-      xVel: 0,
+      xVel: 4,
       yVel: 0,
       accelLeft: false,
       accelRight: false,
@@ -266,7 +283,7 @@ function run() {
 
     blocks: makeBlocks(blockCount),
     movingBlocks: makeBlocks(movingBlocksCount),
-    food: makeCircles(foodCount)
+    food: makeCircles(foodCount, blocks)
   };
 
   if(localStorage.scores){
