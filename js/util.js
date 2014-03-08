@@ -50,6 +50,15 @@ function getRandomColor() {
   return color;
 }
 
+function edgeCollision(game, edge) {
+  if(edge == 'top'){
+    game.faizaan.yVel = JUMP_SPEED;
+  } else {
+    game.faizaan.yVel = -JUMP_SPEED * 2;
+  }
+  game.faizaan.xVel += Math.random();
+}
+
 function didHitCircle(circle, rect){
   var distX = Math.abs(circle.x - rect.x-rect.w/2);
   var distY = Math.abs(circle.y - rect.y-rect.h/2);
@@ -63,4 +72,13 @@ function didHitCircle(circle, rect){
   var dx=distX-rect.w/2;
   var dy=distY-rect.h/2;
   return (dx*dx+dy*dy<=(circle.radius*circle.radius));
+}
+
+function didHit(game, block, faizaan){
+    if((faizaan.x + faizaan.w >= block.x  && faizaan.x < block.x + block.w) && (faizaan.y + faizaan.h >= block.y && faizaan.y < block.y + block.h)){
+      gameOver(game);
+      return true;
+    } else {
+      return false;
+  }
 }

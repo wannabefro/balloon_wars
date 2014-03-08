@@ -1,17 +1,22 @@
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
-if(screen.availWidth >= window.innerWidth && window.innerWidth >= screen.availWidth - 100){
-  var WIDTH = screen.width;
-} else {
-  var WIDTH = window.innerWidth;
-}
+// if(screen.availWidth >= window.innerWidth && window.innerWidth >= screen.availWidth - 100){
+//   var WIDTH = screen.width;
+// } else {
+//   var WIDTH = window.innerWidth;
+// }
 
-if(screen.availHeight >= window.innerHeight && window.innerHeight >= screen.availHeight - 100){
-  var HEIGHT = screen.height;
-} else {
-  var HEIGHT = window.innerHeight;
-}
-var HEIGHT = screen.height;
+// if(screen.availHeight >= window.innerHeight && window.innerHeight >= screen.availHeight - 100){
+//   var HEIGHT = screen.height;
+// } else {
+//   var HEIGHT = window.innerHeight;
+// }
+var WIDTH = window.innerWidth;
+var HEIGHT = window.innerHeight;
+
+var FAIZAAN_WIDTH = 20;
+var FAIZAAN_HEIGHT = 20;
+
 
 var blockCount = 10;
 var movingBlocksCount = 2;
@@ -21,6 +26,7 @@ var level = 1;
 var playing = true;
 var gameloop;
 var finalScore;
+var blockSpeed = 2;
 ctx.canvas.height = HEIGHT;
 ctx.canvas.width = WIDTH;
 
@@ -119,8 +125,6 @@ function tick(game) {
       game.faizaan.xVel = 0.1;
     }
 
-
-
     game.faizaan.x += game.faizaan.xVel;
 
     var xVel = game.faizaan.xVel;
@@ -134,41 +138,20 @@ function tick(game) {
         block.movement = 'negative';
       }
       if(block.movement == 'positive'){
-        block.y++;
+        block.y += block.speed;
       } else {
-        block.y--;
+        block.y -= block.speed;
       }
     }
 
-    if (game.faizaan.y > HEIGHT + 1){
-      if(level == 1){
-        gameOver(game);
-      } else {
-        level--;
-        game.blocks = makeBlocks(blockCount);
-        game.faizaan.y = 20;
-        game.blocks = makeBlocks(blockCount);
-        game.movingBlocks = makeBlocks(movingBlocksCount);
-        animateBlocks(game);
-      }
+    if (game.faizaan.y > HEIGHT){
+      edgeCollision(game, 'bottom');
     }
-    if (game.faizaan.y <  20){
-      game.faizaan.y = HEIGHT;
-      level++;
-      game.blocks = makeBlocks(blockCount);
-      game.movingBlocks = makeBlocks(movingBlocksCount);
-      game.blocks = makeBlocks(blockCount);
-      game.movingBlocks = makeBlocks(movingBlocksCount);
-      animateBlocks(game);
+    if (game.faizaan.y < FAIZAAN_WIDTH){
+      edgeCollision(game, 'top');
     }
     if (game.faizaan.x >  WIDTH - 20){
-      game.faizaan.x = 20;
-      blockCount += 5;
-      movingBlocksCount += 1;
-      game.blocks = makeBlocks(blockCount);
-      game.movingBlocks = makeBlocks(movingBlocksCount);
-      game.food = makeCircles(foodCount);
-      animateBlocks(game);
+      levelUp(game)
     }
     if (game.faizaan.x <  20){
       game.faizaan.x = WIDTH;
@@ -176,8 +159,23 @@ function tick(game) {
   }
 }
 
+function levelUp(game){
+  game.faizaan.x = 20;
+  blockCount += 2;
+  level++;
+  blockSpeed++;
+  movingBlocksCount += 1;
+  game.faizaan.h += 5;
+  game.faizaan.w += 5;
+  game.blocks = makeBlocks(blockCount);
+  game.movingBlocks = makeBlocks(movingBlocksCount);
+  game.food = makeCircles(foodCount);
+  animateBlocks(game);
+}
+
 function draw(game) {
   clearScreen(ctx);
+  drawTextCentered(ctx, level, WIDTH / 2, HEIGHT / 2, HEIGHT / 10, 'monospace');
   if(playing){
   drawTextCentered(ctx, score, 48, 48, 24, 'monospace');
   var wiz = game.faizaan;
@@ -215,20 +213,10 @@ function draw(game) {
   }
 }
 
-
-function didHit(game, block, faizaan){
-    if((faizaan.x + faizaan.w >= block.x  && faizaan.x < block.x + block.w) && (faizaan.y + faizaan.h >= block.y && faizaan.y < block.y + block.h)){
-      gameOver(game);
-      return true;
-    } else {
-      return false;
-  }
-}
-
 function makeBlocks(amount){
   var blocks = [];
   for(var i=0; i < amount; i++){
-    blocks.push({x: Math.floor(Math.random() * WIDTH) + 150, y: Math.floor(Math.random() * (HEIGHT - 100)) + 50, w: (WIDTH / 50) + Math.floor(Math.random() * 50), h: (HEIGHT / 50) + Math.floor(Math.random() * 50), color: getRandomColor()})
+    blocks.push({speed: Math.random() * blockSpeed, x: Math.floor(Math.random() * WIDTH) + 150, y: Math.floor(Math.random() * (HEIGHT - 100)) + 50, w: (WIDTH / 50) + Math.floor(Math.random() * 50), h: (HEIGHT / 50) + Math.floor(Math.random() * 50), color: getRandomColor()})
   }
   return blocks;
 }
@@ -267,8 +255,8 @@ function run() {
     faizaan: {
       x: 20,
       y: HEIGHT / 2,
-      w: 20,
-      h: 30,
+      w: FAIZAAN_WIDTH,
+      h: FAIZAAN_HEIGHT,
       xVel: 0,
       yVel: 0,
       accelLeft: false,
