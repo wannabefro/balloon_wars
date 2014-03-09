@@ -1,18 +1,12 @@
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
-// if(screen.availWidth >= window.innerWidth && window.innerWidth >= screen.availWidth - 100){
-//   var WIDTH = screen.width;
-// } else {
-//   var WIDTH = window.innerWidth;
-// }
-
-// if(screen.availHeight >= window.innerHeight && window.innerHeight >= screen.availHeight - 100){
-//   var HEIGHT = screen.height;
-// } else {
-//   var HEIGHT = window.innerHeight;
-// }
-var WIDTH = window.innerWidth;
-var HEIGHT = window.innerHeight;
+if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+  var WIDTH = screen.width;
+  var HEIGHT = sreen.height;
+} else {
+  var WIDTH = window.innerWidth;
+  var HEIGHT = window.innerHeight;
+}
 
 var FAIZAAN_WIDTH = 20;
 var FAIZAAN_HEIGHT = 20;
@@ -23,7 +17,7 @@ var movingBlocksCount = 2;
 var score = 0;
 var foodCount = 3;
 var level = 1;
-var playing = true;
+var playing = false;
 var gameloop;
 var finalScore;
 var blockSpeed = 2;
@@ -40,8 +34,6 @@ function keyDown(game, event) {
 
   switch (event.keyCode) {
     case SPACE_KEY: jump(game); break;
-    // case LEFT_KEY: toggleAcceleration(game.faizaan, 'left', true); break;
-    // case RIGHT_KEY: toggleAcceleration(game.faizaan, 'right', true); break;
     default: handled = false; break;
   }
 
@@ -54,8 +46,6 @@ function keyUp(game, event) {
   var handled = true;
 
   switch (event.keyCode) {
-    // case LEFT_KEY: toggleAcceleration(game.faizaan, 'left', false); break;
-    // case RIGHT_KEY: toggleAcceleration(game.faizaan, 'right', false); break;
     default: handled = false; break;
   }
 
@@ -78,9 +68,20 @@ function toggleAcceleration(wizard, direction, isEnabled) {
 
 function gameOver(game){
   finalScore = score;
-  game.faizaan = {};
+  resetGame(game);
   playing = false;
   addToLocalStorage();
+  startScreen();
+}
+
+function resetGame(game){
+  game.faizaan = {};
+  game.blocks = {};
+  game.food = {};
+  game.movingBlocks = {};
+  score = 0;
+  level = 1;
+  debugger;
 }
 
 function addToLocalStorage(){
@@ -173,9 +174,9 @@ function levelUp(game){
 }
 
 function draw(game) {
+  if(playing){
   clearScreen(ctx);
   drawTextCentered(ctx, level, WIDTH / 2, HEIGHT / 2, HEIGHT / 10, 'monospace');
-  if(playing){
   drawTextCentered(ctx, score, 48, 48, 24, 'monospace');
   var wiz = game.faizaan;
   drawRect(ctx, wiz.x, wiz.y, wiz.w, wiz.h, wiz.color);
@@ -268,6 +269,7 @@ function animateBlocks(game){
 }
 
 function run() {
+  playing = true;
   var game = {
     faizaan: {
       x: 20,
@@ -302,18 +304,33 @@ function run() {
     keyUp(game, event);
   };
 
-  // window.onclick = function(event) {
-  //   event.preventDefault;
-  //   if(playing){
-  //     jump(game);
-  //   } else {
-  //     playing = true;
-  //   }
-  // }
-
-  var gameLoop = window.requestNextAnimationFrame(function(time) {
+  window.gameLoop = window.requestNextAnimationFrame(function(time) {
     loop(game, time);
   });
 }
-run();
 
+function startScreen() {
+  clearScreen(ctx);
+  if (mobileDevice()) {
+    var text = 'Touch to start';
+  } else {
+    var text = 'Hit space to start';
+  }
+  drawTextCentered(ctx, text, WIDTH / 2, HEIGHT / 2, HEIGHT / 20, 'monospace');
+  window.onkeyup = function(event) {
+    var handled = true;
+
+    switch (event.keyCode) {
+      case SPACE_KEY: run(); break;
+      default: handled = false; break;
+    }
+
+    if (handled) {
+      event.preventDefault();
+    }
+  }
+}
+
+window.onload = function(){
+  startScreen();
+}
