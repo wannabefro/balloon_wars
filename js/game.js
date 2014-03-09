@@ -68,9 +68,9 @@ function toggleAcceleration(wizard, direction, isEnabled) {
 
 function gameOver(game){
   finalScore = score;
-  resetGame(game);
   playing = false;
   addToLocalStorage();
+  resetGame(game);
   startScreen();
 }
 
@@ -81,7 +81,10 @@ function resetGame(game){
   game.movingBlocks = {};
   score = 0;
   level = 1;
-  debugger;
+  blockCount = 10;
+  movingBlocksCount = 2;
+  foodCount = 3;
+  blockSpeed = 2;
 }
 
 function addToLocalStorage(){
@@ -214,7 +217,7 @@ function makeBlocks(amount){
   blocks = [];
   for(var i=0; i < amount; i++){
     function makeBlock(){
-      block = {speed: Math.random() * blockSpeed, x: Math.floor(Math.random() * WIDTH) + 150, y: Math.floor(Math.random() * (HEIGHT - 100)) + 50, w: (WIDTH / 50) + Math.floor(Math.random() * 50), h: (HEIGHT / 50) + Math.floor(Math.random() * 50), color: getRandomColor()};
+      block = {speed: Math.random() * blockSpeed, x: Math.floor(Math.random() * WIDTH - 150) + 150, y: Math.floor(Math.random() * (HEIGHT - 100)) + 50, w: (WIDTH / 50) + Math.floor(Math.random() * 50), h: (HEIGHT / 50) + Math.floor(Math.random() * 50), color: getRandomColor()};
       if (i > 0){
         for(var j = 0; j < blocks.length; j++){
           if (didHitSquare(block, blocks[j])){
